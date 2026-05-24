@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>协作画板</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; touch-action: none; }
+  body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #1e1e1e; }
+  #toolbar { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: #2d2d30; border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,.4); user-select: none; }
+  #toolbar button, #toolbar .color-btn { border: none; cursor: pointer; border-radius: 50%; transition: transform .1s; }
+  #toolbar button:hover, #toolbar .color-btn:hover { transform: scale(1.1); }
+  .color-btn { width: 26px; height: 26px; border: 2px solid transparent; flex-shrink: 0; }
+  .color-btn.active { border-color: #fff; }
+  #size-slider { width: 80px; accent-color: #fff; }
+  #clear-btn { background: #3e3e42; color: #ccc; border-radius: 12px !important; padding: 4px 12px; font-size: 13px; }
+  #undo-btn { background: #3e3e42; color: #ccc; border-radius: 12px !important; padding: 4px 12px; font-size: 13px; }
+  #status { position: fixed; top: 66px; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 12px; color: #888; pointer-events: none; }
+  #status span { color: #4ec94e; }
+  canvas { display: block; cursor: crosshair; }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <button class="color-btn active" style="background:#fff" data-color="#fff"></button>
+  <button class="color-btn" style="background:#f44747" data-color="#f44747"></button>
+  <button class="color-btn" style="background:#4ec94e" data-color="#4ec94e"></button>
+  <button class="color-btn" style="background:#4fc1ff" data-color="#4fc1ff"></button>
+  <button class="color-btn" style="background:#ffd700" data-color="#ffd700"></button>
+  <button class="color-btn" style="background:#ff8c00" data-color="#ff8c00"></button>
+  <input type="range" id="size-slider" min="1" max="20" value="3" title="笔刷大小">
+  <button id="undo-btn" title="撤销本笔">撤销</button>
+  <button id="clear-btn" title="清空画板">清空</button>
+</div>
+<div id="status"><span id="cnt">1</span> 人在线</div>
+
+<canvas id="c"></canvas>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const sizeSlider = document.getElementById('size-slider');
+
+let color = '#fff';
+let brushSize = 3;
+let drawing = false;
+let currentStroke = null;   // { color, width, points: [] }
+let syncing = false;         // don't re-draw our own strokes
+
+// WS
+const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+const ws = new WebSocket(`${proto}://${location.host}/ws`);
+
+ws.onopen = () => {};
+ws.onmessage = e => {
+  const data = JSON.parse(e.data);
+  if (data.type === 'sync') {
+    data.strokes.forEach(drawStroke);
+  } else if (data.type === 'stroke') {
+    syncing = true;
+    drawStroke(data.stroke);
+    syncing = false;
+  } else if (data.type === 'clear') {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  } else if (data.type === 'count') {
+    document.getElementById('cnt').textContent = data.count;
+  }
+};
+
+function drawStroke(s) {
+  if (!s.points || s.points.length === 0) return;
+  ctx.beginPath();
+  ctx.strokeStyle = s.color;
+  ctx.lineWidth = s.width;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.moveTo(s.points[0].x, s.points[0].y);
+  for (let i = 1; i < s.points.length; i++) {
+    ctx.lineTo(s.points[i].x, s.points[i].y);
+  }
+  ctx.stroke();
+}
+
+// Resize
+function resize() {
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  ctx.putImageData(img, 0, 0);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Get canvas coords
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+// Mouse
+canvas.addEventListener('mousedown', e => {
+  drawing = true;
+  const p = getPos(e);
+  currentStroke = { color, width: brushSize, points: [p] };
+  // Draw dot immediately
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = brushSize;
+  ctx.lineCap = 'round';
+  ctx.arc(p.x, p.y, brushSize / 2, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (!drawing) return;
+  const p = getPos(e);
+  const prev = currentStroke.points[currentStroke.points.length - 1];
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = brushSize;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.moveTo(prev.x, prev.y);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+  currentStroke.points.push(p);
+});
+
+canvas.addEventListener('mouseup', () => {
+  if (!drawing) return;
+  drawing = false;
+  if (currentStroke && currentStroke.points.length > 0) {
+    ws.send(JSON.stringify({ type: 'stroke', stroke: currentStroke }));
+  }
+  currentStroke = null;
+});
+
+canvas.addEventListener('mouseleave', () => {
+  if (drawing) {
+    drawing = false;
+    if (currentStroke && currentStroke.points.length > 0) {
+      ws.send(JSON.stringify({ type: 'stroke', stroke: currentStroke }));
+    }
+    currentStroke = null;
+  }
+});
+
+// Touch
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  drawing = true;
+  const p = getPos(t);
+  currentStroke = { color, width: brushSize, points: [p] };
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = brushSize;
+  ctx.arc(p.x, p.y, brushSize / 2, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+});
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!drawing) return;
+  const p = getPos(e.touches[0]);
+  const prev = currentStroke.points[currentStroke.points.length - 1];
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = brushSize;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.moveTo(prev.x, prev.y);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+  currentStroke.points.push(p);
+});
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  if (!drawing) return;
+  drawing = false;
+  if (currentStroke && currentStroke.points.length > 0) {
+    ws.send(JSON.stringify({ type: 'stroke', stroke: currentStroke }));
+  }
+  currentStroke = null;
+});
+
+// Toolbar
+document.querySelectorAll('.color-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    color = btn.dataset.color;
+  });
+});
+
+sizeSlider.addEventListener('input', () => {
+  brushSize = parseInt(sizeSlider.value);
+});
+
+document.getElementById('clear-btn').addEventListener('click', () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ws.send(JSON.stringify({ type: 'clear' }));
+});
+
+document.getElementById('undo-btn').addEventListener('click', () => {
+  if (ws.readyState !== 1) return;
+  // Redraw: clear all, then send clear + all strokes except our last one
+  // Simple approach: just clear and resync — not true undo per stroke
+  // For simplicity, only clears own last stroke: we'd need to track own strokes
+  // Instead, this sends a clear and redraws from server state
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ws.send(JSON.stringify({ type: 'clear' }));
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "collab-editor",
+  "version": "1.0.0",
+  "description": "局域网同步编辑器",
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
