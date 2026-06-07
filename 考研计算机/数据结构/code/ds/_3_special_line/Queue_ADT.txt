@@ -1,0 +1,32 @@
+ADT Queue {
+  数据对象：D={ai|ai∈ElemSet,i=1,2,…,n,n≥0}
+  数据关系：R={<ai−1,ai>|ai−1,ai∈D,i=2,…,n}
+            约定其中a1端为队列头，an端为队列尾。
+  基本操作：
+    InitQueue(*Q, n) 
+      操作结果：构造一个容量为 n 的空队列 Q
+    DestroyQueue(*Q) 
+      初始条件：队列 Q 已存在 
+      操作结果：队列 Q 被销毁，不再存在 
+    ClearQueue(*Q) 
+      初始条件：队列 Q 已存在 
+      操作结果：将 Q 清为空队列 
+    QueueEmpty(*Q) 
+      初始条件：队列 Q 已存在 
+      操作结果：若 Q 为空队列，则返回 true，否则返回 false
+    QueueLength(*Q) 
+      初始条件：队列 Q 已存在 
+      操作结果：返回 Q 的元素个数，即队列的长度 
+    GetHead(*Q, *e) 
+      初始条件：Q 为非空队列 
+      操作结果：返回 Q 的队头元素，用 e 返回其值
+    EnQueue(*Q, e) 
+      初始条件：队列 Q 已存在 
+      操作结果：插入元素 e 为 Q 的新的队尾元素
+    DeQueue(*Q, *e) 
+      初始条件：Q 为非空队列 
+      操作结果：删除 Q 的队头元素，并用 e 返回其值
+    QueueTraverse(*Q) 
+      初始条件：Q 已存在且非空 
+      操作结果：从队头到队尾，依次对 Q 的每个数据元素访问 
+}ADT Queue
