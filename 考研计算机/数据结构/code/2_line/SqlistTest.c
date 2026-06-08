@@ -12,7 +12,7 @@ int main() {
 
     ElemType e;
     ListDelete(&L, 2, &e);
-    printf("e = %d", e);
+    printf("e = %d\n", e);
     ListInsert(&L, 3, 1);
     TraverseList(&L);
 

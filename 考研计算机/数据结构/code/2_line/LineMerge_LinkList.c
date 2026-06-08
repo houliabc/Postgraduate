@@ -1,49 +1,53 @@
 #include <stdio.h>
+#include "LinkList_3.c"
 
-#include "LinkList.c"
-
-// 空间复杂度：O(1)
 // 时间复杂度：O(n × max(m, n)) 
 void mergeList(LinkList A, LinkList B) {
-    int m = ListLength(A);
-    int n = ListLength(B);
-
-    ElemType e;
-    for (int i = 1; i <= n; i++) {
-        GetElem(B, i, &e);
-        if (!LocateElem(A, e)) {
-            ListInsert(A, ++m, e);
-        }
+    // 1. 找到A的尾节点
+    LNode *tail = A;
+    while (tail->next != NULL) {
+        tail = tail->next;
     }
+
+    // 2. 遍历B的节点，摘链 + 挂到A尾部（去重）
+    LNode *cur = B->next;  // B的第一个节点
+    LNode *temp;           // 临时指针，防止断链
+    while (cur != NULL) {
+        temp = cur->next;  // 先保存下一个节点
+
+        // 3. A中不存在该元素，才拼接
+        if (!LocateElem(A, cur->data)) {
+            tail->next = cur;  // 挂到A尾部
+            tail = cur;        // 尾指针后移
+            cur->next = NULL;  // 关键！切断原链表，防止野指针
+        }
+
+        cur = temp;  // 遍历下一个
+    }
+
+    // 4. 关键！清空B链表，销毁时不会重复释放
+    B->next = NULL;
 }
 
 // 时间复杂度：O(m + n) = O(max(m, n))
-// 空间复杂度：O(1)
 void mergeOrderedList(LinkList A, LinkList B, LinkList C) {
-    // C 的尾指针 tail，初始时，指向 C 的头结点
-    LNode *tail = C;
-    // 指针 a 和 b 分别指向 A 和 B 的首元结点
-    LNode *a = A->next, *b = B->next;
-
-    while (a && b) { // 只要 a 和 b 不是指向空，就要比较
+    LNode *c = C, *a = A->next, *b = B->next;
+    while (a && b) {
         if (a->data < b->data) {
-            // 将 a 放到 C 的尾部
-            tail->next = a;
-            tail = a;
+            c->next = a;
             a = a->next;
-        } else {
-            // 将 b 放到 C 的尾部
-            tail->next = b;
-            tail = b;
+        }
+        else {
+            c->next = b;
             b = b->next;
         }
+        c = c->next;
     }
+    c->next = a ? a : b;
 
-    tail->next = a ? a : b;
-
-    free(A);
-    free(B);
+    free(A);free(B);
 }
+
 
 int main() {
     // ------------------  合并线性表 -------------------
@@ -92,6 +96,7 @@ int main() {
     mergeOrderedList(A2, B2, C);
 
     TraverseList(C);
+
     DestroyList(C);
 
     return 0;

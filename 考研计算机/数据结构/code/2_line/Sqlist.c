@@ -6,14 +6,14 @@
 
 typedef int ElemType;
 
-typedef struct Sqlist
+typedef struct SqList
 {
     ElemType *data; // 存储空间的首地址
     int length;
-} Sqlist;
+} SqList;
 
 // 构造一个空的线性表 L
-bool InitList(Sqlist *L) {
+bool InitList(SqList *L) {
     L->data = (ElemType*)malloc(sizeof(ElemType) * INIT_MAX_SIZE);
     if (L->data == NULL)  // 规范写法，防止野指针
         return false;
@@ -22,7 +22,7 @@ bool InitList(Sqlist *L) {
 }
 
 // 销毁线性表 L
-void DestroyList(Sqlist *L) {
+void DestroyList(SqList *L) {
     if (L && L->data) {
         free(L->data);
         L->data = NULL;
@@ -31,7 +31,7 @@ void DestroyList(Sqlist *L) {
 }
 
 // 在线性表L中第i个位置之前插入新的数据元素e
-bool ListInsert(Sqlist *L, int i, ElemType e) {
+bool ListInsert(SqList *L, int i, ElemType e) {
     // 先判断越界情况
     if (i < 1 || i > L->length + 1 || L->length >= INIT_MAX_SIZE)
         return false;
@@ -45,7 +45,7 @@ bool ListInsert(Sqlist *L, int i, ElemType e) {
 }
 
 // 删除线性表L的第i个数据元素
-bool ListDelete(Sqlist *L, int i, ElemType *e) {
+bool ListDelete(SqList *L, int i, ElemType *e) {
     // 先判断越界情况
     if (i < 1 || i > L->length)
         return false;
@@ -59,8 +59,8 @@ bool ListDelete(Sqlist *L, int i, ElemType *e) {
 }
 
 // 遍历线性表
-void TraverseList(Sqlist *L) {
-    printf("curr Sqlist: ");
+void TraverseList(SqList *L) {
+    printf("curr SqList: ");
     for (int i = 0; i < L->length; i++) {
         if (i == 0)
             printf("(%d,", L->data[i]);
@@ -72,7 +72,7 @@ void TraverseList(Sqlist *L) {
 }
 
 // 修改线性表L的第i个数据元素为e
-bool ListUpdate(Sqlist *L, int i, ElemType e) {
+bool ListUpdate(SqList *L, int i, ElemType e) {
     // 先判断越界情况
     if (i < 1 || i > L->length)
         return false;
@@ -81,17 +81,17 @@ bool ListUpdate(Sqlist *L, int i, ElemType e) {
 }
 
 // 查询线性表L是否为空
-bool ListEmpty(Sqlist *L) {
+bool ListEmpty(SqList *L) {
     return L->length == 0;
 }
 
 // 查询线性表L的长度
-int ListLength(Sqlist *L) {
+int ListLength(SqList *L) {
     return L->length;
 }
 
 // 用e返回线性表L中第i个数据元素的值
-bool ListGetElem(Sqlist *L, int i, ElemType *e) {
+bool ListGetElem(SqList *L, int i, ElemType *e) {
     // 先判断越界情况
     if (i < 1 || i > L->length)
         return false;
@@ -100,7 +100,7 @@ bool ListGetElem(Sqlist *L, int i, ElemType *e) {
 }
 
 // 返回线性表L中第1个值与e相同的元素在L中的位置
-int ListLocateElem(Sqlist *L, ElemType e) {
+int ListLocateElem(SqList *L, ElemType e) {
     for (int i = 0; i < L->length; i++) {
         if (L->data[i] == e)
             return i + 1;
