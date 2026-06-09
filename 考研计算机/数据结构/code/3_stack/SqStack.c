@@ -7,7 +7,7 @@
 
 typedef int ElemType;
 
-// 顺序栈结构体定义——采用指针的方式
+// 顺序栈结构体定义——采用指针的方式——同时定义栈顶和栈底
 typedef struct  {
     ElemType *top;
     ElemType *base;
@@ -15,7 +15,7 @@ typedef struct  {
 } SqStack;
 
 // 1. 构造一个空的顺序栈
-bool InitStack(SqStack *S) {
+void InitStack(SqStack *S) {
     // 相当于动态开辟一段数组大小空间
     S->base = (ElemType*)malloc(sizeof(ElemType) * INIT_STACK_SIZE);
     S->top = S->base;

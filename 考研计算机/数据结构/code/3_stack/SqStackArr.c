@@ -15,7 +15,7 @@ typedef struct  {
 } SqStack;
 
 // 1. 构造一个空的顺序栈
-bool InitStack(SqStack *S) {
+void InitStack(SqStack *S) {
     // 相当于动态开辟一段数组大小空间
     S->data = (ElemType*)malloc(sizeof(ElemType) * INIT_STACK_SIZE);
     S->top = -1;
