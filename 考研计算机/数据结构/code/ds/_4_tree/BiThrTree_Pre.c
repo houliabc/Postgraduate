@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "BiThrTree.h"
 
 // 全局变量，用于记录前驱节点
@@ -76,4 +75,17 @@ void PreOrderTraverse_Thr(BiThrTree T) {
             p = p->right;
         }
     }
+}
+
+int main() {
+    char *strs = "ABD#ECF########";
+    int n = 15;
+
+    BiThrTree root = CreateBiTree(strs, n, 0);
+    BiThrTree head = PreOrderThreading(root);
+
+    printf("先序遍历结果: ");
+    PreOrderTraverse_Thr(head);
+
+    return 0;
 }

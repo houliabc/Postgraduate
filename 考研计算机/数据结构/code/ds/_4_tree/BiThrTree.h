@@ -24,6 +24,7 @@ BiThrTNode * CreateNode(TElemType data) {
     newNode->data = data;
     newNode->left = NULL;
     newNode->right = NULL;
+    // 还没有进行线索化，此时即使是指向空，也并不代表指向前驱后继
     newNode->LTag = 0;
     newNode->RTag = 0;
     return newNode;

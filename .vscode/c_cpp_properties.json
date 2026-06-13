@@ -3,17 +3,21 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "D:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/10.3.0/include",
+                "D:/Dev-Cpp/MinGW64/include",
+                "D:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/10.3.0/include-fixed",
+                "D:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "cl.exe",
-            "cStandard": "c17",
+            "compilerPath": "D:/Dev-Cpp/MinGW64/bin/gcc.exe",
+            "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "windows-msvc-x64"
+            "intelliSenseMode": "windows-gcc-x64"
         }
     ],
     "version": 4
