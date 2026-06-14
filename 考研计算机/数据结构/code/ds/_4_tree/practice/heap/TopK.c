@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 #include "MinHeap.c"
 
 // 时间复杂度是 O(nlogk)
@@ -27,7 +26,7 @@ void topK(int nums[], int n, int k) {
     }
 
     // 打印 top k 个元素
-    printf("top %d: ", k);
+    printf("top %d: \n", k);
     while (MinHeapDelMin(&H, &e)) {
         printf("%d, ", e);
     }

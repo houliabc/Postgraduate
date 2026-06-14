@@ -1,0 +1,25 @@
+CompileFlags:
+  Add:
+    - "-std=c++17"
+    - "--target=x86_64-w64-mingw32"
+    - "--gcc-toolchain=D:/Dev-Cpp/MinGW64"
+
+Diagnostics:
+  Suppress:
+    - "drv_unknown_argument"
+  UnusedIncludes: None
+  MissingIncludes: None
+
+Index:
+  Background: Build
+
+Hover:
+  ShowAKA: Yes
+
+InlayHints:
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+
+Completion:
+  AllScopes: Yes

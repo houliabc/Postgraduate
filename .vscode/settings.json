@@ -1,0 +1,21 @@
+{
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "clangd.path": "C:\\Users\\aaaa\\AppData\\Local\\Microsoft\\WinGet\\Links\\clangd.exe",
+    "clangd.arguments": [
+        "--header-insertion=never",
+        "--background-index",
+        "--compile-commands-dir=${workspaceFolder}",
+        "--all-scopes-completion",
+        "--completion-style=detailed",
+        "--function-arg-placeholders=true",
+        "--log=error"
+    ],
+    "clangd.fallbackFlags": [
+        "-std=c++17",
+        "--target=x86_64-w64-mingw32",
+        "--gcc-toolchain=D:/Dev-Cpp/MinGW64"
+    ],
+    "log.level": {
+        "anthropic.claude-code": "error"
+    }
+}
