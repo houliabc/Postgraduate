@@ -1,8 +1,21 @@
 CompileFlags:
   Add:
-    - "-std=c++17"
     - "--target=x86_64-w64-mingw32"
     - "--gcc-toolchain=D:/Dev-Cpp/MinGW64"
+
+---
+If:
+  PathMatch: .*\.c$
+CompileFlags:
+  Add:
+    - "-std=c11"
+
+---
+If:
+  PathMatch: .*\.(cpp|cc|cxx)$
+CompileFlags:
+  Add:
+    - "-std=c++17"
 
 Diagnostics:
   Suppress:

@@ -10,11 +10,8 @@
         "--function-arg-placeholders=true",
         "--log=error"
     ],
-    "clangd.fallbackFlags": [
-        "-std=c++17",
-        "--target=x86_64-w64-mingw32",
-        "--gcc-toolchain=D:/Dev-Cpp/MinGW64"
-    ],
+    // fallbackFlags 移除，改用 .clangd 配置文件区分 C/C++
+    // "clangd.fallbackFlags": [],
     "log.level": {
         "anthropic.claude-code": "error"
     }
