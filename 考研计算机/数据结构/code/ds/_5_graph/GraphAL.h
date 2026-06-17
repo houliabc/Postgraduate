@@ -9,7 +9,7 @@ typedef int EdgeType;
 
 // 边表结点
 typedef struct ENode {
-    int adjvex;              // 邻接顶点
+    int adjvex;              // 邻接顶点——下标
     EdgeType weight;         // 边的权值
     struct ENode *nextEdge;  // 指向下一条边的指针
 } EdgeNode;
