@@ -1,12 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "Heap.h"
 
+// 无向网的边
+typedef struct {
+    int v;
+    int w;
+    int weight;
+} Edge;
+
+typedef Edge HElemType;
+
+typedef struct {  
+    HElemType *data;  // 存储堆元素的数组
+    int capacity;     // 堆容量
+    int heapSize;     // 堆大小
+} MaxHeap, MinHeap;
+
+// 交换两个元素的值
+void swap(HElemType *a, HElemType *b) {
+    HElemType temp = *a;
+    *a = *b;
+    *b = temp;
+}
 
 // 堆的初始化
 void InitMinHeap(MinHeap *H, int n) {
-    H->data = (ElemType*)malloc(sizeof(ElemType) * n);
+    H->data = (HElemType*)malloc(sizeof(HElemType) * n);
     H->capacity = n;
     H->heapSize = 0;
 }
@@ -25,7 +45,7 @@ bool MinHeapEmpty(MinHeap *H) {
 
 // 查询最小元素
 // 时间复杂度：O(1)
-bool extractMin(MinHeap *H, ElemType *e) {
+bool extractMin(MinHeap *H, HElemType *e) {
     if (MinHeapEmpty(H))
         return false;
     *e = H->data[0];
@@ -34,7 +54,7 @@ bool extractMin(MinHeap *H, ElemType *e) {
 
 // 往堆中插入元素 e
 // 时间复杂度：O(logn)
-bool MinHeapInsert(MinHeap *H, ElemType e) {
+bool MinHeapInsert(MinHeap *H, HElemType e) {
     // TODO: 插入元素并上浮
     // 先判断是否满了
     if (H->capacity == H->heapSize)
@@ -48,7 +68,7 @@ bool MinHeapInsert(MinHeap *H, ElemType e) {
         parent = (k - 1) / 2;
         
         // 如果符合就跳出循环了
-        if (H->data[parent] <= H->data[k])
+        if (H->data[parent].weight <= H->data[k].weight)
             break;
         
         // 否则就交换，然后进行下一轮
@@ -65,11 +85,11 @@ void MinHeapSink(MinHeap *H, int k) {
         smallest = k * 2 + 1;
         right = k * 2 + 2;
         // 选择子元素最小的
-        if (right < H->heapSize && H->data[right] < H->data[smallest])
+        if (right < H->heapSize && H->data[right].weight < H->data[smallest].weight)
             smallest = right;
         
         // 当前已经符合小顶堆的定义
-        if (H->data[k] <= H->data[smallest]) break;
+        if (H->data[k].weight <= H->data[smallest].weight) break;
 
         swap(&H->data[k], &H->data[smallest]);
         k = smallest;
@@ -78,7 +98,7 @@ void MinHeapSink(MinHeap *H, int k) {
 
 // 删除堆顶最小元素
 // 时间复杂度：O(logn)
-bool MinHeapDelMin(MinHeap *H, ElemType *e) {
+bool MinHeapDelMin(MinHeap *H, HElemType *e) {
     // TODO: 删除堆顶，返回元素值
     // 先判断是否空
     if (MinHeapEmpty(H))
@@ -91,17 +111,4 @@ bool MinHeapDelMin(MinHeap *H, ElemType *e) {
 
     MinHeapSink(H, 0);
     return true;
-}
-
-// 原地建堆操作
-// 时间复杂度：O(n)
-// 空间复杂度：O(1)
-void buildMinHeap(int nums[], int n, MinHeap *H) {
-    H->data = nums;
-    H->heapSize = n;
-    H->capacity = n;
-    // 从最后一个非叶结点开始下沉操作
-    for (int i = n / 2 - 1; i >= 0; i--) {
-        MinHeapSink(H, i);
-    }
 }

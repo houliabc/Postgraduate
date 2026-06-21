@@ -11,7 +11,7 @@ void InitMaxHeap(MaxHeap *H, int n) {
 }
 
 // 堆的销毁
-void DestoryMaxHeap(MaxHeap *H) {
+void DestroyMaxHeap(MaxHeap *H) {
     if (H->data)
         free(H->data);
 }
