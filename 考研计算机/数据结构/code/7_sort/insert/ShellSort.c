@@ -4,14 +4,15 @@
 void ShellInsert(int nums[], int n, int h) {
     // 每一趟，进行 h 轮的直接插入排序
     for (int k = 0; k < h; k++) {
-        for (int i = h + k; i < n; i += h) {
-            int insertEle = nums[i];
-            int j = i;
-            for (; j >= h && nums[j - h] > insertEle; j -= h) {
-                nums[j] = nums[j - h];
+        // i = k + 1 同个效果，间隔是h
+        for (int i = k + h; i < n; i+=h) {
+            int j = i, t = nums[i];
+            // 顺序查找：从后往前遍历 [0...i - 1] 有序区间中
+            // 找到最后一个大于 nums[i] 的元素
+            for (; j >= h && t < nums[j - h]; j -= h) {
+                    nums[j] = nums[j - h];
             }
-
-            nums[j] = insertEle;
+            nums[j] = t;
         }
     }
 }

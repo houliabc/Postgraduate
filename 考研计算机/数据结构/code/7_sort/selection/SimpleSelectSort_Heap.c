@@ -1,23 +1,22 @@
 #include <stdio.h>
-
 #include "MinHeap.c"
 
 // 简单选择排序
 // 时间复杂度: O(nlogn)
 // 空间复杂度: O(n)
 void SelectSort(int nums[], int n) {
-    MinHeap h;
-    InitMinHeap(&h, n);
-
-    for (int i = 0; i < n; i++) MinHeapInsert(&h, nums[i]);
-
-    int minEle;
+    // 基于小顶堆来优化简单选择排序
+    MinHeap heap;
+    InitMinHeap(&heap, n);
     for (int i = 0; i < n; i++) {
-        // 在 nums[i...n - 1] 中选择最小的元素
-        MinHeapDelMin(&h, &minEle);
-
-        nums[i] = minEle;
+        MinHeapInsert(&heap, nums[i]);
     }
+    for (int i = 0; i < n; i++) {
+        HElemType min;
+        MinHeapDelMin(&heap, &min);
+        nums[i] = min;
+    }
+    DestoryMinHeap(&heap);
 }
 
 int main() {

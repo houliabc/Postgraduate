@@ -6,6 +6,7 @@ void InsertSort1(int nums[], int n) {
     for (int i = 1; i < n; i++) {
         int j = i - 1, t = nums[i], insertPos = i;  // 插入位置默认是当前无序列表中第一个位置，表示当前元素比有序列表里最大的元素还要大
         for (; j >= 0; j--) {
+            // 找到第一个比t大的（离t最近且大于t的），也就是有比t大的就更新及挪位置
             if (t < nums[j]) {
                 nums[j + 1] = nums[j];
                 // 记录插入位置

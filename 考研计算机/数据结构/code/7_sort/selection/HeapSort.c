@@ -6,20 +6,18 @@
 // 时间复杂度: O(nlogn)
 // 空间复杂度: O(1)
 void HeapSort(int nums[], int n) {
-    MaxHeap h;
+    MaxHeap heap;
+    buildMaxHeap(nums, n, &heap);
+    for (int i = n - 1; i >= 0; i--) {
+        int t = nums[0];  // 0表示大顶堆的最大的元素，即每次能确定一个最大元素放到最后
+        nums[0] = nums[i];  // i表示最大位置存放的地方
+        nums[i] = t;
 
-    // 时间复杂度：O(n)
-    buildMaxHeap(nums, n, &h);
+        // 实际在heap中不删除，但个数减少，就当做删除了
+        heap.heapSize--;
 
-    // 时间复杂度：O(nlogn)
-    for (int i = n - 1; i > 0; i--) {
-        int x = nums[0];
-        nums[0] = nums[i];
-        nums[i] = x;
-
-        h.heapSize--;
-        // 时间复杂度：O(logn)
-        MaxHeapSink(&h, 0);
+        // 做下沉操作
+        MaxHeapSink(&heap, 0);
     }
 }
 

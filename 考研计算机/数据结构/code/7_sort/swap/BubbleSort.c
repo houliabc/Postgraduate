@@ -6,18 +6,21 @@
 // 空间复杂度：O(1)
 void BubbleSort(int nums[], int n) {
     // 执行 n - 1 趟，每趟将最大的元素放到未排序区间的最后
-    for (int round = 1; round <= n - 1; round++) {
-        bool hasSwap = false;
-        int compareTimes = n - round;
-        for (int i = 0; i < compareTimes; i++) {
-            if (nums[i] > nums[i + 1]) {
-                int tmp = nums[i];
-                nums[i] = nums[i + 1];
-                nums[i + 1] = tmp;
-                hasSwap = true;
+    for (int i = 0; i < n - 1; i++) {
+        // 用于提前推出冒泡排序
+        bool flag = false;
+        // 每一趟的比较次数从n-1一直到1
+        for (int j = 1; j < n - i; j++) {  // 从前往后冒泡
+            if (nums[j - 1] > nums[j]) {
+                int t = nums[j];
+                nums[j] = nums[j - 1];
+                nums[j - 1] = t;
+                flag = true;
             }
         }
-        if (!hasSwap) break;
+        // 表示这一趟没有交换，则已有序
+        if (!flag)
+            return;
     }
 }
 

@@ -9,38 +9,33 @@ void swap(int nums[], int i, int j) {
 
 // 对数组 nums 的区间 [left...right] 进行一次分区
 int partition(int nums[], int left, int right) {
+    // // 取第一个元素作为枢轴
+    // int pivot = nums[left];
     // 随机化分区点
-    int randomIndex = left + rand() % (right - left + 1);
-    swap(nums, left, randomIndex);
+    int pivot = left + rand() % (right - left + 1);
 
-    int v = nums[left];             // 先记住分区点元素
-
-    while (left < right) { // 从数组的两端交替的往中间遍历
-        // 从右往左，找到第一个小于分区点的元素
-        while (left < right && nums[right] >= v) right--;
-        // 将小于分区点的元素移动到左边
+    while (left < right) {
+        // 找到右边第一个小于枢轴元素的
+        while (left < right && nums[right] >= pivot) right--;
         nums[left] = nums[right];
-        // 从左往右，找到第一个大于分区点的元素
-        while (left < right && nums[left] <= v) left++;
-        // 将大于分区点的元素移动到有边
+        // 找到左边第一个大于枢轴元素的
+        while (left < right && nums[left] <= pivot) left++;
         nums[right] = nums[left];
     }
-
-    // 将分区点放到排序后的正确位置
-    nums[left] = v;
-
-    // 返回分区点的下标
+    // left作为数轴的插入位置，且此位置为最终的位置
+    nums[left] = pivot;
     return left;
 }
 
 // 对数组 nums 的区间 [left...right] 进行排序
 void quickSort(int nums[], int left, int right) {
+    // 按照二叉树的前序遍历方式来递归的快排
+    // 设置退出条件
     if (left >= right) return;
 
-    int j = partition(nums, left, right);
-
-    quickSort(nums, left, j - 1);
-    quickSort(nums, j + 1, right);
+    int pivot = partition(nums, left, right);
+    quickSort(nums, left, pivot - 1);
+    quickSort(nums, pivot + 1, right);
 }
 
 int main() {
