@@ -3,30 +3,31 @@
 // 二路合并操作
 // 将数组 nums 的区间 [left...mid] 和 [mid + 1, right] 进行二路合并
 // tmp 是已经创建好的长度为 n 的临时数组
-void Merge(int nums[], int tmp[], int left, int mid, int right) {
-    // 拷贝区间元素到临时数组
-    for (int k = left; k <= right; k++) {
-        tmp[k] = nums[k];
-    }
-
+void Merge(int nums[], int tmp[], int left, int mid, int right) {  // 合并的操作
+    // 复制nums数组到tmp处
+    for (int i = left; i <= right; i++) tmp[i] = nums[i];
     int i = left, j = mid + 1;
+    // 对[left,right]范围内进行合并的操作
     for (int k = left; k <= right; k++) {
-        if (i > mid)              nums[k] = tmp[j++];
-        else if (j > right)       nums[k] = tmp[i++];
-        else if (tmp[i] > tmp[j]) nums[k] = tmp[j++];
-        else                      nums[k] = tmp[i++];
+        if (i > mid) nums[k] = tmp[j++];
+        else if (j > right) nums[k] = tmp[i++];
+        else if (tmp[i] <= tmp[j]) nums[k] = tmp[i++];
+        else nums[k] = tmp[j++];
     }
 }
 
 // 对数组 nums 的区间 [left...right] 进行归并排序
-void MSort(int nums[], int tmp[], int left, int right) {
+void MSort(int nums[], int tmp[], int left, int right) {  //  分割及合并的操作
+    // 结束条件：叶子，即left==right
     if (left == right) return;
 
+    // 否则的话按照后续遍历去遍历树
+    // 先分割，直至分割到叶子节点的双亲节点
     int mid = (left + right) / 2;
-
     MSort(nums, tmp, left, mid);
     MSort(nums, tmp, mid + 1, right);
 
+    // 接着对此两个叶子进行合并的过程
     Merge(nums, tmp, left, mid, right);
 }
 

@@ -7,7 +7,7 @@ int max(int a, int b) {
     return a > b ? a : b;
 }
 
-// 对数组按照指定的位进行计数排序
+// 对数组按照指定的位进行计数排序————用计数排序作为底层实现的基数排序
 void CountSort(int data[], int n, int exp) {
     int i;
     int output[n]; // 输出数组
