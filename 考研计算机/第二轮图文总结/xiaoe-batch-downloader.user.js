@@ -379,6 +379,31 @@
 
   function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+  // ======================== 课程名称提取 ========================
+  function getCourseTitle() {
+    // 尝试从小鹅通页面常见选择器获取课程名称
+    var selectors = [
+      '.course-title', '.class-title', '.product-title',
+      '[class*="course"][class*="title"]',
+      '.xe-header__title', '.catalog-header__title',
+      '.breadcrumb span:last-child', '[class*="breadcrumb"] [class*="active"]'
+    ];
+    for (var i = 0; i < selectors.length; i++) {
+      try {
+        var el = $1(selectors[i]);
+        if (el && el.textContent.trim()) return el.textContent.trim();
+      } catch(e) {}
+    }
+    // 兜底：尝试从 document.title 中提取（格式通常是 "文章名_课程名" 或类似）
+    var dt = (document.title || '').trim();
+    var parts = dt.split(/[_\-\—\|]/);
+    if (parts.length > 1) {
+      var last = parts[parts.length - 1].trim();
+      if (last && last.length > 1 && last.length < 50) return last;
+    }
+    return null;
+  }
+
   // ======================== 批量核心：收集 + 合并 ========================
   function startBatch() {
     var items = getSelected();
@@ -389,7 +414,7 @@
       return { index: idx, total: items.length, title: it.title, chapterTitle: it.chapterTitle, resourceId: it.resourceId, url: buildUrl(it.resourceId) };
     });
 
-    var state = { queue: queue, currentIndex: 0, startedAt: new Date().toISOString(), collected: 0, failed: 0 };
+    var state = { queue: queue, currentIndex: 0, startedAt: new Date().toISOString(), collected: 0, failed: 0, courseTitle: getCourseTitle() || '课程图文合集' };
 
     // 初始化内容存储（空数组）
     try {
@@ -526,7 +551,8 @@
 
     // 合并内容
     var md = buildCombinedMarkdown(collected, state);
-    var safeName = ('计算机组成原理_图文总结合集').replace(/[\\/:*?"<>|]/g, '_');
+    var courseTitle = (state && state.courseTitle) || '课程图文合集';
+    var safeName = (courseTitle + '_图文总结合集').replace(/[\\/:*?"<>|]/g, '_');
     var blob = new Blob(['﻿' + md], { type: 'text/markdown;charset=utf-8' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a'); a.href = url; a.download = safeName + '.md';
@@ -542,7 +568,8 @@
     var lines = [];
 
     // 文件标题
-    lines.push('# 计算机组成原理 — 图文总结合集');
+    var courseTitle = (state && state.courseTitle) || '课程图文合集';
+    lines.push('# ' + courseTitle + ' — 图文总结合集');
     lines.push('');
     lines.push('> 自动生成于: ' + new Date().toLocaleString('zh-CN'));
     lines.push('> 共收录 ' + collected.length + ' 篇图文总结');
