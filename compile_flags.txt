@@ -1,3 +1,0 @@
--std=c++17
---target=x86_64-w64-mingw32
---gcc-toolchain=D:/Dev-Cpp/MinGW64
