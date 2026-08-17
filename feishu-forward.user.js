@@ -199,12 +199,32 @@
       if (trimmed) paragraphs.push(trimmed);
     }
 
+    // 先提取图片（纯图片消息没有文字，正文为空是正常的）
+    var images = extractImages(msgEl);
+
+    // 兜底2：飞书改版后上面两种选择器可能都抓不到，
+    // 拿消息内容容器整体文本兜底，剔除发送者名/时间戳/头像等噪声
+    if (paragraphs.length === 0) {
+      var bodyEl = msgEl.querySelector('[class*="body"]') || msgEl;
+      var clone = bodyEl.cloneNode(true);
+      clone.querySelectorAll(
+        '.message-info-name, .message-timestamp, .message-avatar, [class*="reaction"], [class*="sticker"], [class*="toolbar"]'
+      ).forEach(function (n) { n.remove(); });
+      var t = clone.textContent.trim();
+      if (t) {
+        paragraphs.push(t);
+        log('🆘 内容走兜底2，抓到:', t.substring(0, 60));
+      } else if (images.length > 0) {
+        log('📷 纯图片消息（无正文文字），图片已提取 ' + images.length + ' 张');
+      } else {
+        log('⚠️ 内容与图片都提取失败，msgEl 原始文本:', msgEl.textContent.trim().substring(0, 120));
+      }
+    }
+
     const content = paragraphs.join('\n');
     const msgTime = parseMessageTime(displayTime);
     const isForwardedQuestion =
       content.includes('问:') || paragraphs.some(function (p) { return p.trim() === '问:'; });
-    // 提取图片
-    var images = extractImages(msgEl);
     // fingerprint 纳入图片信息，防止纯图片消息去重遗漏
     var imgFp = images.length > 0 ? '|IMG:' + images.map(function (im) { return im.imageKey; }).join(',') : '';
     const fingerprint = sender + '|' + displayTime + '|' + content.substring(0, 200) + imgFp;
@@ -224,10 +244,15 @@
   }
 
   function shouldForward(msg) {
-    if (!msg.content && !msg.hasImages) return false;
+    if (!msg.content && !msg.hasImages) {
+      log('🚫 跳过：内容为空且无图片 (sender="' + msg.sender + '", time="' + msg.displayTime + '")');
+      return false;
+    }
 
     // 跳过机器人
-    if (CONFIG.skipSenders.some(function (s) { return msg.sender === s || msg.sender.includes(s); })) {
+    var hitSkip = CONFIG.skipSenders.find(function (s) { return msg.sender === s || msg.sender.includes(s); });
+    if (hitSkip) {
+      log('🚫 跳过：sender 命中 skipSenders["' + hitSkip + '"]');
       return false;
     }
 
@@ -239,10 +264,13 @@
 
     // 按模式过滤
     if (CONFIG.forwardMode === 'only_annie') {
-      if (msg.sender !== '安妮') return false;
-      if (msg.content.startsWith('问:')) return false;
+      if (msg.sender !== '安妮') { log('🚫 跳过：only_annie 模式，sender!="安妮"'); return false; }
+      if (msg.content.startsWith('问:')) { log('🚫 跳过：only_annie 模式，内容以"问:"开头'); return false; }
     } else if (CONFIG.forwardMode === 'sender') {
-      if (!CONFIG.senderFilter.includes(msg.sender)) return false;
+      if (!CONFIG.senderFilter.includes(msg.sender)) {
+        log('🚫 跳过：sender 模式，sender="' + msg.sender + '" 不在 senderFilter 中');
+        return false;
+      }
     }
 
     return true;
